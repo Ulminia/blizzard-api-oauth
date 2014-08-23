@@ -1,4 +1,4 @@
 blizzard-api-oauth
 ==================
 
-the blizzard api in oauth form
+This application will use the blizzard api with oauth setting more info to come
