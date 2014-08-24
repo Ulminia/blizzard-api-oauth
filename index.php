@@ -7,11 +7,17 @@ require('Client.php');
 require('GrantType/IGrantType.php');
 require('GrantType/AuthorizationCode.php');
 
+/**
+*	Required vars for the api to work
+*
+**/
+
 $client_id			= '';
 $client_secret		= '';
 $region				= 'US';
 $locale				= 'en_US';
 $redirect_uri		= '';
+
 // init the auth system client_id, client_secret, region, local all required
 $client = new OAuth2\Client($client_id, $client_secret, $region, $locale, $redirect_uri);
 

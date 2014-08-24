@@ -389,19 +389,19 @@ class Client
 		switch ($class)
 		{
 			case 'achievement':
-						$q = 'wow/achievement/'.$fields['name'];
+						$q = 'wow/achievement/'.$fields['id'];
 					break;
 			case 'auction':
 						$q = 'wow/auction/data/'.$fields['server'];
 					break;
 			case 'abilities':
-						$q = 'wow/battlepet/ability/'.$fields['name'];
+						$q = 'wow/battlepet/ability/'.$fields['id'];
 					break;
 			case 'species':
-						$q = 'wow/battlepet/species/'.$fields['name'];
+						$q = 'wow/battlepet/species/'.$fields['id'];
 					break;
 			case 'stats':
-						$q = 'wow/battlepet/stats/'.$fields['name'];
+						$q = 'wow/battlepet/stats/'.$fields['id'];
 					break;
 			case 'realm_leaderboard':
 						$q = 'wow/challenge/'.$fields['server'];
@@ -416,10 +416,10 @@ class Client
 						$q = 'wow/character/'.$fields['server'].'/'.$fields['name'];
 					break;
 			case 'item':
-						$q = 'wow/item/'.$fields['name'];
+						$q = 'wow/item/'.$fields['id'];
 					break;
 			case 'item_set':
-						$q = 'wow/item/set/'.$fields['name'];
+						$q = 'wow/item/set/'.$fields['id'];
 					break;
 			case 'guild':
 						$q = 'wow/guild/'.$fields['server'].'/'.$fields['name'];
@@ -428,16 +428,16 @@ class Client
 						$q = 'wow/leaderboard/'.$fields['size'];
 					break;
 			case 'quest':
-						$q = 'wow/quest/'.$fields['name'];
+						$q = 'wow/quest/'.$fields['id'];
 					break;
 			case 'realmstatus':
 						$q = 'wow/realm/status';
 					break;
 			case 'recipe':
-						$q = 'wow/recipe/'.$fields['name'];
+						$q = 'wow/recipe/'.$fields['id'];
 					break;
 			case 'spell':
-						$q = 'wow/spell/'.$fields['name'];
+						$q = 'wow/spell/'.$fields['id'];
 					break;
 			case 'battlegroups':
 						$q = 'wow/data/battlegroups/';
