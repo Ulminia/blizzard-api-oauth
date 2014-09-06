@@ -375,7 +375,7 @@ class Client
 		//$url .= $path;
 		$url .= self::_buildtype($path,$params);
 		$url .= (count($params)) ? '?' . http_build_query($params) : '';
-		echo $url.'<br>';
+		//echo $url.'<br>';
 		return $url;
     }
 	
