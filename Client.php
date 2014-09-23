@@ -632,9 +632,10 @@ class Client
             case self::HTTP_METHOD_DELETE:
             case self::HTTP_METHOD_GET:
                 if (is_array($parameters)) {
-                    $url .= '?' . http_build_query($parameters, null, '&');
+				// these next 2 lines caused some trouble and where redundent
+                    //$url .= '?' . http_build_query($parameters, null, '&');
                 } elseif ($parameters) {
-                    $url .= '?' . $parameters;
+                    //$url .= '?' . $parameters;
                 }
                 break;
             default:
