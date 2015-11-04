@@ -475,10 +475,10 @@ class Client
 						$q = 'wow/data/pet/types';
 					break;
 			case 'pet':
-						$q = 'wow/pet';
+						$q = 'wow/pet/';
 					break;
 			case 'mount':
-						$q = 'wow/mount';
+						$q = 'wow/mount/';
 					break;
 			case 'sc2profile':
 					if ($this->access_token)
