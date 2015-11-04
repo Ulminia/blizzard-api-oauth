@@ -192,6 +192,11 @@ class Client
 	 */
 	public $locale = '';
 	
+	/**
+		Ext type
+	*/
+	public $ext;
+	
     /**
      * Construct
      *
@@ -395,13 +400,13 @@ class Client
 						$q = 'wow/auction/data/'.$fields['server'];
 					break;
 			case 'abilities':
-						$q = 'wow/battlepet/ability/'.$fields['id'];
+						$q = 'wow/pet/ability/'.$fields['id'];
 					break;
 			case 'species':
-						$q = 'wow/battlepet/species/'.$fields['id'];
+						$q = 'wow/pet/species/'.$fields['id'];
 					break;
 			case 'stats':
-						$q = 'wow/battlepet/stats/'.$fields['id'];
+						$q = 'wow/pet/stats/'.$fields['id'];
 					break;
 			case 'realm_leaderboard':
 						$q = 'wow/challenge/'.$fields['server'];
@@ -468,6 +473,12 @@ class Client
 					break;
 			case 'pet_types':
 						$q = 'wow/data/pet/types';
+					break;
+			case 'pet':
+						$q = 'wow/pet';
+					break;
+			case 'mount':
+						$q = 'wow/mount';
 					break;
 			case 'sc2profile':
 					if ($this->access_token)
