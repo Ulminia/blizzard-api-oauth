@@ -5,7 +5,7 @@ This application will use the blizzard api with oauth setting more info to come
 
 How to use
 
-see the wiki on github
+Please See The Wiki... it explanes all the new calls.....
 
 To make a Secure call the script cal be called as so
 
