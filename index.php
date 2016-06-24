@@ -22,7 +22,7 @@ $redirect_uri		= '';
 $client = new OAuth2\Client($client_id, $client_secret, $region, $locale, $redirect_uri);
 
 
-$r = $client->fetch('character',array('name'=>'ulminia','server'=>'zangarmarsh','fields'=>'items,stats'));
+$r = $client->fetch('character',array('name'=>'ulminia','server'=>'zangarmarsh','fields'=>'items,stats','source'=>'wow'));
 echo '<pre>';
 print_r($r);
 echo '</pre>';
