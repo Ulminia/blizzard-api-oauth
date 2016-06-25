@@ -1,6 +1,7 @@
 <?php
 /*
 	this is the new api class for warcraft only wow related calls are used in it
+	version 1.4
 */
 
 

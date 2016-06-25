@@ -1,6 +1,7 @@
 <?php
 /*
 	this is the new api class for warcraft only wow related calls are used in it
+	version 1.4
 */
 
 
@@ -20,10 +21,13 @@ class sc {
 
 			case 'profile': 
 				$q = '/sc2/profile/'.$fields['id'].'/'.$fields['region'].'/'.$fields['name'].'/';
+				break;
 			case 'ladders': 
 				$q = '/sc2/profile/'.$fields['id'].'/'.$fields['region'].'/'.$fields['name'].'/ladders';
+				break;
 			case 'match_history': 
 				$q = '/sc2/profile/'.$fields['id'].'/'.$fields['region'].'/'.$fields['name'].'/matches';
+				break;
 
 			/*
 			ladder api
@@ -31,6 +35,7 @@ class sc {
 
 			case 'ladder': 
 				$q = '/sc2/ladder/'.$fields['id'];
+				break;
 
 			/*
 			data resources
@@ -38,8 +43,10 @@ class sc {
 
 			case 'achievements': 
 				$q = '/sc2/data/achievements';
+				break;
 			case 'rewards': 
 				$q = '/sc2/data/rewards';
+				break;
 
 
 			default:

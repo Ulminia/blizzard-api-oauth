@@ -1,6 +1,8 @@
 blizzard-api-oauth
 ==================
 
+	version 1.4
+	
 This application will use the blizzard api with oauth setting more info to come
 
 How to use
@@ -21,7 +23,7 @@ To make a Secure call the script cal be called as so
 		$params = array('code' => $_GET['code'], 'auth_flow' => 'auth_code', 'redirect_uri' => $client->redirect_uri);
 		$response = $client->getAccessToken($client->baseurl[$client->region]['TOKEN_ENDPOINT'], 'authorization_code', $params);
 		$client->setAccessToken($response['result']['access_token']);
-		$response = $client->fetch('wowprofile');
+		$response = $client->fetch('user',array('source'=>'account'));
 		echo '<pre>';
 		print_r($response);
 		echo '</pre>';
