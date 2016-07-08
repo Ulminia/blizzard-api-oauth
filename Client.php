@@ -409,8 +409,10 @@ class Client
     {
 		if ( isset($parameters['source']) )
 		{
-			self::apiclass($parameters['source']);
-			$this->ext = new $parameters['source']();
+			if (!class_exists($parameters['source'])) {
+				self::apiclass($parameters['source']);
+				$this->ext = new $parameters['source']();
+			}
 			//$protected_resource_url = $ext->_buildUrl($protected_resource_url, $parameters);
 		}
 
