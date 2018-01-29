@@ -393,7 +393,7 @@ class Client
 
 	public function apiclass($class)
 	{
-		require (__DIR__.'/ext/'.$class.'.php');
+		require_once (__DIR__.'/ext/'.$class.'.php');
 	}
     /**
      * Fetch a protected ressource

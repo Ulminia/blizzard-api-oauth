@@ -19,8 +19,14 @@ class account {
 			account api
 			*/
 
-			case 'user': 
-				$q = '/account/user';
+			case 'account':
+				$q = 'account/user';
+				break;
+			case 'accountid':
+				$q = 'account/user/id';
+				break;
+			case 'battletag':
+				$q = 'account/user/battletag';
 				break;
 
 			/*
@@ -37,7 +43,6 @@ class account {
 			default:
 			break;
 		}
-		//$q = str_replace('+' , '%20' , urlencode($q));
 		return $q;
 	}
 	

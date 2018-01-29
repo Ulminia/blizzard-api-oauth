@@ -7,9 +7,9 @@ error_reporting(E_ALL);
  ini_set('display_errors', 1);
 
 
-require('Client.php');
-require('GrantType/IGrantType.php');
-require('GrantType/AuthorizationCode.php');
+require_once('Client.php');
+require_once('GrantType/IGrantType.php');
+require_once('GrantType/AuthorizationCode.php');
 
 /**
 *	Required vars for the api to work
