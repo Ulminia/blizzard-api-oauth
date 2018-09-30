@@ -23,7 +23,7 @@ To make a Secure call the script cal be called as so
 		$params = array('code' => $_GET['code'], 'auth_flow' => 'auth_code', 'redirect_uri' => $client->redirect_uri);
 		$response = $client->getAccessToken($client->baseurl[$client->region]['TOKEN_ENDPOINT'], 'authorization_code', $params);
 		$client->setAccessToken($response['result']['access_token']);
-		$response = $client->fetch('user',array('source'=>'account'));
+		$response = $client->fetch('account',array('source'=>'account'));
 		echo '<pre>';
 		print_r($response);
 		echo '</pre>';
