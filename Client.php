@@ -22,14 +22,19 @@
  *
  * @author      Pierrick Charron <pierrick@webstart.fr>
  * @author      Anis Berejeb <anis.berejeb@gmail.com>
- * @version     1.2-dev
+
  *
  * @author      Joe Foster (Ulminia) <ulminia@gmail.com>
- * @version     1.0 (beta)
- */
-namespace OAuth2;
 
-class Client
+ */
+namespace OAuth;
+
+require_once( 'GrantType/IGrantType.php');
+require_once( 'GrantType/AuthorizationCode.php');
+require_once( 'GrantType/ClientCredentials.php');
+
+
+class oauthApi
 {
     /**
      * Different AUTH method
@@ -53,6 +58,9 @@ class Client
     const GRANT_TYPE_PASSWORD           = 'password';
     const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_id';
     const GRANT_TYPE_REFRESH_TOKEN      = 'refresh_token';
+	const GRANT_TYPE_C_C 				= 'client_credentials';
+	
+	const INVALID_GRANT_TYPE			= 'bob';
 
     /**
      * HTTP Methods
@@ -154,32 +162,44 @@ class Client
 	public $baseurl = array(
 
 			'US' => array(
-				'urlbase'					=> 'https://us.api.battle.net/',
+				'urlbase'					=> 'https://us.api.blizzard.com',
 				'AUTHORIZATION_ENDPOINT'	=> 'https://us.battle.net/oauth/authorize',
 				'TOKEN_ENDPOINT'			=> 'https://us.battle.net/oauth/token',
+				'ACCOUNT_ENDPOINT'			=> 'https://us.battle.net',
 			),
 			'EU' => array(
-				'urlbase'					=> 'https://eu.api.battle.net/',
+				'urlbase'					=> 'https://eu.api.blizzard.com',
 				'AUTHORIZATION_ENDPOINT'	=> 'https://eu.battle.net/oauth/authorize',
 				'TOKEN_ENDPOINT'			=> 'https://eu.battle.net/oauth/token',
+				'ACCOUNT_ENDPOINT'			=> 'https://eu.battle.net',
 			),
 			'KR' => array(
-				'urlbase'					=> 'https://kr.api.battle.net/',
+				'urlbase'					=> 'https://kr.api.blizzard.com',
 				'AUTHORIZATION_ENDPOINT'	=> 'https://kr.battle.net/oauth/authorize',
 				'TOKEN_ENDPOINT'			=> 'https://kr.battle.net/oauth/token',
+				'ACCOUNT_ENDPOINT'			=> 'https://kr.battle.net',
 			),
 			'TW' => array(
-				'urlbase'					=> 'https://tw.api.battle.net/',
+				'urlbase'					=> 'https://tw.api.blizzard.com',
 				'AUTHORIZATION_ENDPOINT'	=> 'https://tw.battle.net/oauth/authorize',
 				'TOKEN_ENDPOINT'			=> 'https://tw.battle.net/oauth/token',
+				'ACCOUNT_ENDPOINT'			=> 'https://tw.battle.net',
+			),
+			'CN' => array(
+				'urlbase'					=> 'https://cn.api.blizzard.com',
+				'AUTHORIZATION_ENDPOINT'	=> 'https://cn.battle.net/oauth/authorize',
+				'TOKEN_ENDPOINT'			=> 'https://cn.battle.net/oauth/token',
+				'ACCOUNT_ENDPOINT'			=> 'https://cn.battle.net',
 			),
 			'SEA' => array(
-				'urlbase'					=> 'https://sea.api.battle.net/',
+				'urlbase'					=> 'https://sea.api.blizzard.com',
 				'AUTHORIZATION_ENDPOINT'	=> 'https://sea.battle.net/oauth/authorize',
 				'TOKEN_ENDPOINT'			=> 'https://sea.battle.net/oauth/token',
+				'ACCOUNT_ENDPOINT'			=> 'https://sea.battle.net',
 			),
 	);
 	
+	public $ignore_cache = false;
 	/**
 	 *	region setting
 	 *
@@ -192,11 +212,21 @@ class Client
 	 */
 	public $locale = '';
 	
-	/**
-		Ext type
+	/*
+	*	some tracking bits for people
 	*/
-	public $ext;
+	public $usage = array(
+				'type'				=> '',
+				'url'				=> '',
+				'responce_code'		=> '',
+				'content_type'		=> '',
+				'locale'			=> '',
+			);
+	public $cache;
+	public $item;
 	
+	public $errno = CURLE_OK;
+	public $error = '';
     /**
      * Construct
      *
@@ -211,16 +241,26 @@ class Client
         if (!extension_loaded('curl')) {
             throw new Exception('The PHP exention curl must be installed to use this library.', Exception::CURL_NOT_FOUND);
         }
-		
+
+		$r = preg_replace('/http:/', 'https:', $redirect_uri);
 		$client_auth			= self::AUTH_TYPE_URI;
         $this->client_id		= $client_id;
         $this->client_secret	= $client_secret;
 		$this->region			= $region;
 		$this->locale			= $locale;
         $this->client_auth		= $client_auth;
-		$this->redirect_uri		= $redirect_uri;
+		$this->redirect_uri		= $r;
+		$bob = $this->getAccessToken($this->baseurl[$this->region]['TOKEN_ENDPOINT'], 'client_credentials',array());
+		$this->setAccessToken($bob['access_token']);
+		$this->setAccessTokenType(1);
+	
     }
 
+	public function set_region($region)
+	{
+		$this->region = $region;
+	}
+	
     /**
      * Get the client Id
      *
@@ -254,7 +294,7 @@ class Client
         $parameters = array_merge(array(
             'response_type' => 'code',
             'client_id'     => $this->client_id,
-			'scope'			=> 'wow.profile+sc2.profile',
+			'scope'			=> 'wow.profile',
 			'auth_flow'		=> 'auth_code',
             'redirect_uri'  => $redirect_uri
         ), $extra_parameters);
@@ -275,9 +315,9 @@ class Client
             throw new InvalidArgumentException('The grant_type is mandatory.', InvalidArgumentException::INVALID_GRANT_TYPE);
         }
         $grantTypeClassName = $this->convertToCamelCase($grant_type);
-        $grantTypeClass =  __NAMESPACE__ . '\\GrantType\\' . $grantTypeClassName;
+        $grantTypeClass =  __NAMESPACE__ . '' . $grantTypeClassName;
         if (!class_exists($grantTypeClass)) {
-            throw new InvalidArgumentException('Unknown grant type \'' . $grant_type . '\'', InvalidArgumentException::INVALID_GRANT_TYPE);
+            throw new InvalidArgumentException('Unknown grant type \'' . $grant_type . '\' ['.$grantTypeClass.']', InvalidArgumentException::INVALID_GRANT_TYPE);
         }
         $grantTypeObject = new $grantTypeClass();
         $grantTypeObject->validateParameters($parameters);
@@ -301,7 +341,9 @@ class Client
                 break;
         }
 
-        return $this->executeRequest($token_endpoint, $parameters, self::HTTP_METHOD_POST, $http_headers, self::HTTP_FORM_CONTENT_TYPE_APPLICATION);
+        $result = $this->executeRequest($token_endpoint, $parameters, self::HTTP_METHOD_POST, $http_headers, self::HTTP_FORM_CONTENT_TYPE_APPLICATION);
+
+		return $result;
     }
 
     /**
@@ -376,25 +418,302 @@ class Client
 		//set for translation
 		$params['locale'] = $this->locale;
 
-		$url = $this->baseurl[$this->region]['urlbase'];
-		//$url .= $path;
-		if ( isset($params['source']) )
+		if ($path == 'account')
 		{
-			$url .= $this->ext->_buildtype($path,$params);//$protected_resource_url = $ext->_buildUrl($protected_resource_url, $parameters);
+			$url = $this->baseurl[$this->region]['ACCOUNT_ENDPOINT'];
 		}
 		else
-		{
-			$url .= self::_buildtype($path,$params);
+		{				
+			$url = $this->baseurl[$this->region]['urlbase'];
 		}
-		$url .= (count($params)) ? '?' . http_build_query($params) : '';
-		//echo $url.'<br>';
+		//$url .= $path;
+		$url .= self::_buildtype($path,$params);
+		unset($params['name']);
+		unset($params['server']);
+		$url .= (count($params)) ? '?' . $this->_build_strings($params, '&') : '';
+		$this->usage = array (
+			'type'		=> $path,
+			'url'		=> $url,
+			'locale'	=> $this->locale
+		);
+		//echo $url;
 		return $url;
+		
     }
-
-	public function apiclass($class)
+	
+	function _build_strings($params, $sep)
 	{
-		require_once (__DIR__.'/ext/'.$class.'.php');
+		$e = '';
+		$r = array();
+		foreach($params as $key=>$val)
+		{
+			$r[] = $key.'='.$val;
+		}
+		$e = implode($sep, $r);
+		return $e;
 	}
+	
+	/**
+	*	Type of call uri build
+	*	$class - type of call
+	*	$fields - array of data (name,server,size)
+	**/
+	public function _buildtype($class,$fields)
+	{
+		$fields['realm'] = $fields['server'];
+		switch ($class)
+		{
+			/*
+				Achievement API
+			*/
+			case 'achievement':
+				$q = '/wow/achievement/'.$fields['id'].'';
+			break;
+
+
+			/*
+				Auction API
+			*/
+			case 'auction_data':
+				$q = '/wow/auction/data/'.$fields['realm'].'';
+			break;
+
+
+			/*
+				Boss API
+			*/
+			case 'boss_list':
+				$q = '/wow/boss/';
+			break;
+			case 'boss':
+				$q = '/wow/boss/'.$fields['bossid'].'';
+			break;
+
+
+			/*
+				Challenge Mode API
+			*/
+			case 'realm_leaderboard':
+				$q = '/wow/challenge/'.$fields['realm'].'';
+			break;
+			case 'region_leaderboard':
+				$q = '/wow/challenge/region';
+			break;
+
+
+			/*
+				Character Profile API
+			*/
+			case 'character':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'achievements':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'appearance':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'feed':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'guild':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'hunter_pets':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'items':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'mounts':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'pets':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'pet_slots':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'professions':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'progression':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'pvp':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'quests':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'reputation':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'statistics':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'stats':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'talents':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'titles':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'audit':
+				$q = '/wow/character/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+
+
+			/*
+				Guild Profile API
+			*/
+			case 'guild':
+				$q = '/wow/guild/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'members':
+				$q = '/wow/guild/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'achievements':
+				$q = '/wow/guild/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'news':
+				$q = '/wow/guild/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+			case 'challenge':
+				$q = '/wow/guild/'.$fields['realm'].'/'.$fields['name'].'';
+			break;
+				
+			/*
+				Item API
+			*/
+			case 'item':
+				$q = '/wow/item/'.$fields['id'].'';
+			break;
+			case 'item_set':
+				$q = '/wow/item/set/'.$fields['setid'].'';
+			break;
+				
+			/*
+				Mount API
+			*/
+			case 'mount_list':
+				$q = '/wow/mount/';
+			break;
+				
+			/*
+				Pet API
+			*/
+			case 'pet_list':
+				$q = '/wow/pet/';
+			break;
+			case 'abilities':
+				$q = '/wow/pet/ability/'.$fields['abilityID'].'';
+			break;
+			case 'species':
+				$q = '/wow/pet/species/'.$fields['speciesID'].'';
+			break;
+			case 'stats':
+				$q = '/wow/pet/stats/'.$fields['speciesID'].'';
+			break;
+				
+			/*
+				PVP API
+			*/
+			case 'leaderboards':
+				$q = '/wow/leaderboard/'.$fields['bracket'].'';
+			break;
+				
+			/*
+				Quest API
+			*/
+			case 'quest':
+				$q = '/wow/quest/'.$fields['questId'].'';
+			break;
+
+
+			/*
+				Realm Status API
+			*/
+			case 'realm_status':
+				$q = '/wow/realm/status';
+			break;
+				
+			/*
+				Recipe API
+			*/
+			case 'recipe':
+				$q = '/wow/recipe/'.$fields['recipeId'].'';
+			break;
+				
+			/*
+				Spell API
+			*/
+			case 'spell':
+				$q = '/wow/spell/'.$fields['spellId'].'';
+			break;
+				
+			/*
+				User API
+			*/
+			case 'wowprofile':
+				$q = '/wow/user/characters';
+			break;
+			case 'account':
+				$q = '/oauth/userinfo';
+			break;
+
+
+			/*
+				Zone API
+			*/
+			case 'master_list':
+				$q = '/wow/zone/';
+			break;
+			case 'zone':
+				$q = '/wow/zone/'.$fields['zoneid'].'';
+			break;
+
+
+			/*
+				Data Resources
+			*/
+			case 'battlegroups':
+				$q = '/wow/data/battlegroups/';
+			break;
+			case 'character_races':
+				$q = '/wow/data/character/races';
+			break;
+			case 'character_classes':
+				$q = '/wow/data/character/classes';
+			break;
+			case 'character_achievements':
+				$q = '/wow/data/character/achievements';
+			break;
+			case 'guild_rewards':
+				$q = '/wow/data/guild/rewards';
+			break;
+			case 'guild_perks':
+				$q = '/wow/data/guild/perks';
+			break;
+			case 'guild_achievements':
+				$q = '/wow/data/guild/achievements';
+			break;
+			case 'item_classes':
+				$q = '/wow/data/item/classes';
+			break;
+			case 'talents':
+				$q = '/wow/data/talents';
+			break;
+			case 'pet_types':
+				$q = '/wow/data/pet/types';
+			break;
+		}
+		$q = str_replace(' ' , '%20' , $q);
+		return $q;
+	}
+	
     /**
      * Fetch a protected ressource
      *
@@ -405,19 +724,11 @@ class Client
      * @param int    $form_content_type HTTP form content type to use
      * @return array
      */
-    public function fetch($protected_resource_url, $parameters = array(), $http_method = self::HTTP_METHOD_GET, array $http_headers = array(), $form_content_type = self::HTTP_FORM_CONTENT_TYPE_MULTIPART)
+    public function fetch($protected_resource_url, $parameters = array(), $http_headers = array(), $http_method = self::HTTP_METHOD_GET, $form_content_type = self::HTTP_FORM_CONTENT_TYPE_MULTIPART)
     {
-		if ( isset($parameters['source']) )
-		{
-			if (!class_exists($parameters['source'])) {
-				self::apiclass($parameters['source']);
-				$this->ext = new $parameters['source']();
-			}
-			//$protected_resource_url = $ext->_buildUrl($protected_resource_url, $parameters);
-		}
-
+		global $roster;
 		$protected_resource_url = self::_buildUrl($protected_resource_url, $parameters);
-	
+		
         if ($this->access_token) {
             switch ($this->access_token_type) {
                 case self::ACCESS_TOKEN_URI:
@@ -444,7 +755,10 @@ class Client
                     break;
             }
         }
-        return $this->executeRequest($protected_resource_url, $parameters, $http_method, $http_headers, $form_content_type);
+		
+		$result = $this->executeRequest($protected_resource_url, $parameters, $http_method, $http_headers, $form_content_type);
+			
+		return $result;
     }
 
     /**
@@ -496,16 +810,19 @@ class Client
      */
     private function executeRequest($url, $parameters = array(), $http_method = self::HTTP_METHOD_GET, array $http_headers = null, $form_content_type = self::HTTP_FORM_CONTENT_TYPE_MULTIPART)
     {
-		//echo '<br><br>'.$url.'<br><br>';
+		global $roster;
+		
+		//echo $url.'<br>'.$http_method.'<br>';
+		
         $curl_options = array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_CUSTOMREQUEST  => $http_method
         );
-
         switch($http_method) {
             case self::HTTP_METHOD_POST:
                 $curl_options[CURLOPT_POST] = true;
+				
                 /* No break */
             case self::HTTP_METHOD_PUT:
 			case self::HTTP_METHOD_PATCH:
@@ -525,18 +842,14 @@ class Client
                 /* No break */
             case self::HTTP_METHOD_DELETE:
             case self::HTTP_METHOD_GET:
-                if (is_array($parameters)) {
-				// these next 2 lines caused some trouble and where redundent
-                    //$url .= '?' . http_build_query($parameters, null, '&');
-                } elseif ($parameters) {
-                    //$url .= '?' . $parameters;
-                }
+                
                 break;
             default:
                 break;
         }
-
+		//echo $url.'<br>';
         $curl_options[CURLOPT_URL] = $url;
+		$curl_options[CURLOPT_HEADER] = true;
 
         if (is_array($http_headers)) {
             $header = array();
@@ -549,7 +862,8 @@ class Client
         $ch = curl_init();
         curl_setopt_array($ch, $curl_options);
         // https handling
-        if (!empty($this->certificate_file)) {
+        if (!empty($this->certificate_file))
+		{
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($ch, CURLOPT_CAINFO, $this->certificate_file);
@@ -558,26 +872,74 @@ class Client
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         }
-        if (!empty($this->curl_options)) {
+        if (!empty($this->curl_options))
+		{
             curl_setopt_array($ch, $this->curl_options);
         }
+		curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
         $result = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        if ($curl_error = curl_error($ch)) {
-            throw new Exception($curl_error, Exception::CURL_ERROR);
-        } else {
-            $json_decode = json_decode($result, true);
-        }
-        curl_close($ch);
+		$this->errno	= curl_errno($ch);
+		$this->error	= curl_error($ch);
+		$header_size = curl_getinfo($ch,CURLINFO_HEADER_SIZE);
+		
+		//d($result,$http_code,$this->errno,$this->error,$content_type);
 
-        return array(
-            'result' => (null === $json_decode) ? $result : $json_decode,
-            'code' => $http_code,
-            'content_type' => $content_type
-        );
+		$this->usage['responce_code'] = $http_code;
+		$this->usage['content_type'] = $content_type;
+
+        if ($this->errno)
+		{
+			$json_decode = json_decode(substr( $result, $header_size ), true);
+			$json_decode['header'] = $this->get_headers_from_curl_response(substr($result, 0, $header_size));
+			$json_decode['http_code'] = '~'.$http_code;
+			$json_decode['last_url'] = curl_getinfo($ch,CURLINFO_EFFECTIVE_URL);
+			curl_close($ch);
+			return $json_decode;
+        }
+		else
+		{
+			$header_size = curl_getinfo($ch,CURLINFO_HEADER_SIZE);
+			$json_decode = json_decode(substr( $result, $header_size ), true);
+			$json_decode['header'] = $this->get_headers_from_curl_response(substr($result, 0, $header_size));
+			$json_decode['http_code'] = $http_code;
+			$json_decode['last_url'] = curl_getinfo($ch,CURLINFO_EFFECTIVE_URL);
+			
+        }
+
+		//if (isset($json_decode['status']) OR $json_decode['status'] == 'nok' OR 
+		if ( $json_decode['http_code'] != 200 && $json_decode['http_code'] != 304 )
+		{
+			$header_size = curl_getinfo($ch,CURLINFO_HEADER_SIZE);
+			$json_decode = json_decode(substr( $result, $header_size ), true);
+			$json_decode['header'] = $this->get_headers_from_curl_response(substr($result, 0, $header_size));
+			$json_decode['http_code'] = $http_code;//curl_getinfo($ch,CURLINFO_HTTP_CODE);
+			$json_decode['last_url'] = curl_getinfo($ch,CURLINFO_EFFECTIVE_URL);
+			
+		}
+        curl_close($ch);
+		return (null === $json_decode) ? $result : $json_decode;
     }
 
+	public function get_headers_from_curl_response($response)
+	{
+		$headers = array();
+
+		$header_text = substr($response, 0, strpos($response, "\r\n\r\n"));
+
+		foreach (explode("\r\n", $header_text) as $i => $line)
+			if ($i === 0)
+				$headers['http_code'] = $line;
+			else
+			{
+				list ($key, $value) = explode(': ', $line);
+
+				$headers[$key] = $value;
+			}
+
+		return $headers;
+	}
     /**
      * Set the name of the parameter that carry the access token
      *
@@ -602,8 +964,8 @@ class Client
         return implode('', $parts);
     }
 }
-
-class Exception extends \Exception
+/*
+class Exception extends Exception
 {
     const CURL_NOT_FOUND                     = 0x01;
     const CURL_ERROR                         = 0x02;
@@ -612,10 +974,11 @@ class Exception extends \Exception
     const INVALID_ACCESS_TOKEN_TYPE          = 0x05;
 }
 
-class InvalidArgumentException extends \InvalidArgumentException
+class InvalidArgumentException extends InvalidArgumentException
 {
     const INVALID_GRANT_TYPE      = 0x01;
     const CERTIFICATE_NOT_FOUND   = 0x02;
     const REQUIRE_PARAMS_AS_ARRAY = 0x03;
     const MISSING_PARAMETER       = 0x04;
 }
+*/

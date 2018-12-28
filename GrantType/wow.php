@@ -1,16 +1,6 @@
 <?php
-/*
-	this is the new api class for warcraft only wow related calls are used in it
-	version 1.4
-*/
 
-
-class wow {
-	/**
-	*	Type of call uri build
-	*	$class - type of call
-	*	$fields - array of data (name,server,size)
-	**/
+class wow extends Client {
 	public function _buildtype($class,$fields)
 	{
 		switch ($class)
@@ -22,13 +12,13 @@ class wow {
 						$q = 'wow/auction/data/'.$fields['server'];
 					break;
 			case 'abilities':
-						$q = 'wow/battlepet/ability/'.$fields['id'];
+						$q = 'wow/pet/ability/'.$fields['id'];
 					break;
 			case 'species':
-						$q = 'wow/battlepet/species/'.$fields['id'];
+						$q = 'wow/pet/species/'.$fields['id'];
 					break;
 			case 'stats':
-						$q = 'wow/battlepet/stats/'.$fields['id'];
+						$q = 'wow/pet/stats/'.$fields['id'];
 					break;
 			case 'realm_leaderboard':
 						$q = 'wow/challenge/'.$fields['server'];
@@ -96,6 +86,44 @@ class wow {
 			case 'pet_types':
 						$q = 'wow/data/pet/types';
 					break;
+			case 'pet':
+						$q = 'wow/pet/';
+					break;
+			case 'mount':
+						$q = 'wow/mount/';
+					break;
+			case 'sc2profile':
+					if ($this->access_token)
+					{
+						$q = 'sc2/profile/user';
+					}else{
+						throw new Exception('Access Token Required for this call.', Exception::MISSING_PARAMETER);
+					}
+					break;
+			case 'wowprofile':
+					if ($this->access_token)
+					{
+						$q = 'wow/user/characters';
+					}else{
+						throw new Exception('Access Token Required for this call.', Exception::MISSING_PARAMETER);
+					}
+					break;
+			case 'accountid':
+					if ($this->access_token)
+					{
+						$q = 'account/user/id';
+					}else{
+						throw new Exception('Access Token Required for this call.', Exception::MISSING_PARAMETER);
+					}
+					break;
+			case 'battletag':
+					if ($this->access_token)
+					{
+						$q = 'account/user/battletag';
+					}else{
+						throw new Exception('Access Token Required for this call.', Exception::MISSING_PARAMETER);
+					}
+					break;
 
 			default:
 			break;
@@ -103,9 +131,4 @@ class wow {
 		//$q = str_replace('+' , '%20' , urlencode($q));
 		return $q;
 	}
-	
 }
-
-
-
-?>

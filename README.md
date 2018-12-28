@@ -1,30 +1,18 @@
 blizzard-api-oauth
 ==================
 
-	version 1.4
+Version 1.5
+
+WORKS ONLY WITH NEW DEV PORTAL
+
+
+at THIS TIME ONLY CODED FOR WOW USAGE
+
+SOURCE NO LONGER NEEDED 
+
+ACCESS TOKEN TYPE MUST NOW BE SET
+
+$bob = $client->getAccessToken($client->baseurl[$client->->region]['TOKEN_ENDPOINT'], 'client_credentials', $parameters);
+$client->setAccessToken($bob['access_token']);
+$client->setAccessTokenType(1);
 	
-This application will use the blizzard api with oauth setting more info to come
-
-How to use
-
-Please See The Wiki... it explanes all the new calls.....
-
-To make a Secure call the script cal be called as so
-
-	if (!isset($_GET['code']))
-	{
-
-		$auth_url = $client->getAuthenticationUrl($client->baseurl[$client->region]['AUTHORIZATION_ENDPOINT'], $client->redirect_uri);
-		header('Location: ' . $auth_url);
-		die('Redirect');
-	}
-	else
-	{
-		$params = array('code' => $_GET['code'], 'auth_flow' => 'auth_code', 'redirect_uri' => $client->redirect_uri);
-		$response = $client->getAccessToken($client->baseurl[$client->region]['TOKEN_ENDPOINT'], 'authorization_code', $params);
-		$client->setAccessToken($response['result']['access_token']);
-		$response = $client->fetch('account',array('source'=>'account'));
-		echo '<pre>';
-		print_r($response);
-		echo '</pre>';
-	}
