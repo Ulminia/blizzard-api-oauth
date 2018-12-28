@@ -17,12 +17,6 @@
 /**
  * Based off Light PHP wrapper for the OAuth 2.0 protocol.
  *
- * This client is based on the OAuth2 specification draft v2.15
- * http://tools.ietf.org/html/draft-ietf-oauth-v2-15
- *
- * @author      Pierrick Charron <pierrick@webstart.fr>
- * @author      Anis Berejeb <anis.berejeb@gmail.com>
-
  *
  * @author      Joe Foster (Ulminia) <ulminia@gmail.com>
 
