@@ -1,6 +1,6 @@
 <?php
 
-class wow extends Client {
+class wow extends oauthApi {
 	public function _buildtype($class,$fields)
 	{
 		switch ($class)

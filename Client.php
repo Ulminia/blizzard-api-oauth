@@ -21,11 +21,10 @@
  * @author      Joe Foster (Ulminia) <ulminia@gmail.com>
 
  */
-namespace OAuth;
 
-require_once( 'GrantType/IGrantType.php');
-require_once( 'GrantType/AuthorizationCode.php');
-require_once( 'GrantType/ClientCredentials.php');
+require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR . 'GrantType/IGrantType.php');
+require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR . 'GrantType/AuthorizationCode.php');
+require_once( dirname(__FILE__) . DIRECTORY_SEPARATOR . 'GrantType/ClientCredentials.php');
 
 
 class oauthApi
@@ -309,7 +308,7 @@ class oauthApi
             throw new InvalidArgumentException('The grant_type is mandatory.', InvalidArgumentException::INVALID_GRANT_TYPE);
         }
         $grantTypeClassName = $this->convertToCamelCase($grant_type);
-        $grantTypeClass =  __NAMESPACE__ . '' . $grantTypeClassName;
+        $grantTypeClass = $grantTypeClassName;
         if (!class_exists($grantTypeClass)) {
             throw new InvalidArgumentException('Unknown grant type \'' . $grant_type . '\' ['.$grantTypeClass.']', InvalidArgumentException::INVALID_GRANT_TYPE);
         }

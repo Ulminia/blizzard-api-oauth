@@ -8,9 +8,6 @@ error_reporting(E_ALL);
 
 
 require_once('Client.php');
-require_once('GrantType/IGrantType.php');
-require_once('GrantType/AuthorizationCode.php');
-
 /**
 *	Required vars for the api to work
 *
@@ -23,4 +20,4 @@ $locale				= 'en_US';
 $redirect_uri		= '';
 
 // init the auth system client_id, client_secret, region, local all required
-$client = new OAuth\oauthApi($client_id, $client_secret, $region, $locale, $redirect_uri);
+$client = new oauthApi($client_id, $client_secret, $region, $locale, $redirect_uri);
