@@ -506,7 +506,7 @@ class oauthApi
 				Guild Profile API
 			*/
 			case 'guild':
-				$q = '/wow/guild/'.$fields['realm'].'/'.urlencode ($fields['name']).'';
+				$q = '/wow/guild/'.$fields['realm'].'/'.rawurlencode ($fields['name']).'';
 			break;
 				
 			/*
