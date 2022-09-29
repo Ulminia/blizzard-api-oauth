@@ -40,4 +40,5 @@ if (!isset($_GET['code']))
 $params = array('code' => $_GET['code'], 'auth_flow' => 'auth_code', 'grant_type' => 'authorization_code', 'redirect_uri' => $api->redirect_uri.$page);
 
 $response = $api->getAccessToken($api->baseurl[$api->region]['TOKEN_ENDPOINT'], 'authorization_code', $params);
-$api->setAccessToken($response['access_token']);```
+$api->setAccessToken($response['access_token']);
+```
