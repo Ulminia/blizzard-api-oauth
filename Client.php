@@ -543,6 +543,11 @@ class Client
 			case 'auctions':
 				$q = '/data/wow/connected-realm/'.$fields['connectedRealmId'].'/auctions';
 				$s = '/data/wow/connected-realm/{connectedRealmId}/auctions';
+				
+			break;
+			case 'commodities':
+				$q = '/data/wow/auctions/commodities';
+				$s = '/data/wow/auctions/commodities';
 			break;
 
 
@@ -1074,12 +1079,10 @@ class Client
 
 			break;
 
-
 			case 'pvp_tiers_index':
 				$q = '/data/wow/pvp-tier/index';
 				$s = '/data/wow/pvp-tier/index';
 			break;
-
 
 			case 'pvp_tier':
 				$q = '/data/wow/pvp-tier/'.$fields['pvpTierId'];
@@ -1223,6 +1226,19 @@ class Client
 				$q = '/data/wow/pvp-talent/'.$fields['pvpTalentId'];
 				$s = '/data/wow/pvp-talent/{pvpTalentId}';
 			break;
+			
+			case 'talent_tree_index':
+				$q = '/data/wow/talent-tree/index';
+				$s = '/data/wow/talent-tree/index';
+
+			case 'talent_tree':
+				$q = '/data/wow/talent-tree/'.$fields['talentTreeId'].'/playable-specialization/'.$fields['specId'];
+				$s = '/data/wow/talent-tree/{talentTreeId}/playable-specialization/{specId}';
+
+			case 'talent_tree_nodes':
+				$q = '/data/wow/talent-tree/'.$fields['talentTreeId'];
+				$s = '/data/wow/talent-tree/{talentTreeId}';
+
 
 
 			/*  Tech Talent API */
