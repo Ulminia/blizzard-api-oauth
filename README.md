@@ -32,13 +32,13 @@ $client = new Client($client_id, $client_secret, $region, $locale, $redirect_uri
 ```
 if (!isset($_GET['code']))
 {
-	$auth_url = $api->getAuthenticationUrl($api->baseurl[$api->region]['AUTHORIZATION_ENDPOINT'], $api->redirect_uri);
+	$auth_url = $client->getAuthenticationUrl($client->baseurl[$client->region]['AUTHORIZATION_ENDPOINT'], $client->redirect_uri);
 	echo '<script> location.replace("'.$auth_url.'"); </script>';
 	exit();
 }
 
-$params = array('code' => $_GET['code'], 'auth_flow' => 'auth_code', 'grant_type' => 'authorization_code', 'redirect_uri' => $api->redirect_uri.$page);
+$params = array('code' => $_GET['code'], 'auth_flow' => 'auth_code', 'grant_type' => 'authorization_code', 'redirect_uri' => $client->redirect_uri.$page);
 
-$response = $api->getAccessToken($api->baseurl[$api->region]['TOKEN_ENDPOINT'], 'authorization_code', $params);
-$api->setAccessToken($response['access_token']);
+$response = $client->getAccessToken($client->baseurl[$client->region]['TOKEN_ENDPOINT'], 'authorization_code', $params);
+$client->setAccessToken($response['access_token']);
 ```

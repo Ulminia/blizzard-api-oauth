@@ -20,4 +20,4 @@ $locale				= 'en_US'; // al https://develop.battle.net/documentation/guides/regi
 $redirect_uri		= '';
 
 // init the auth system client_id, client_secret, region, local all required
-$client = new oauthApi($client_id, $client_secret, $region, $locale, $redirect_uri);
+$client = new Client($client_id, $client_secret, $region, $locale, $redirect_uri);
