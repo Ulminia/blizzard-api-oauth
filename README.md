@@ -1,7 +1,7 @@
 blizzard-api-oauth
 ==================
 
-Version 1.6
+Version 1.6.1
 
 WORKS ONLY WITH NEW DEV PORTAL
 
