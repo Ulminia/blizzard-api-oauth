@@ -16,7 +16,7 @@
 
 /**
  * Based off Light PHP wrapper for the OAuth 2.0 protocol.
- * Version 1.6
+ * Version 1.6.1
  *
  * @author      Joe Foster (Ulminia) <ulminia@gmail.com>
 
